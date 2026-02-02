@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Выбор тарифа{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="text-center">
+        {% if company.has_active_subscription %}
+            <h1 class="text-3xl font-bold text-gray-800">Смена тарифного плана</h1>
+            <p class="mt-2 text-lg text-gray-600">Выберите новый тариф. Изменения вступят в силу немедленно.</p>
+        {% else %}
+            <h1 class="text-3xl font-bold text-gray-800">Выберите ваш тарифный план</h1>
+            <p class="mt-2 text-lg text-gray-600">Начните работу с системой, выбрав подходящий тариф.</p>
+        {% endif %}
+    </div>
+
+<div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    {% for plan in plans %}
+    <div class="bg-white p-8 rounded-lg shadow-lg flex flex-col border-2 {% if 'Бизнес' in plan.name %}border-primary-600{% else %}border-gray-200{% endif %}">
+
+        <h2 class="text-2xl font-bold text-gray-900">{{ plan.name }}</h2>
+        <p class="text-gray-600 mt-2 h-16">{{ plan.description|default:"Базовый набор функций для начала работы." }}</p>
+
+        {# Основные лимиты #}
+        <ul class="mt-6 space-y-3 text-gray-600 flex-grow">
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> <strong>{{ plan.max_equipment }}</strong> ед. оборудования</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> <strong>{{ plan.max_users }}</strong> сотрудников</li>
+{#            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Брендирование QR-кодов</li>#}
+        </ul>
+
+        {# КНОПКИ ОПЛАТЫ #}
+        {% if company.subscription_plan.id == plan.id %}
+            <div class="mt-8">
+                 <button type="button" class="w-full bg-gray-400 text-white py-3 rounded-md cursor-not-allowed" disabled>
+                    Ваш текущий тариф
+                </button>
+            </div>
+        {% else %}
+            {# Форма для месячной оплаты #}
+            <form method="post" action="{% url 'qr_app:subscription_activate' company_slug=company.slug %}" class="mt-8">
+                {% csrf_token %}
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                <input type="hidden" name="period" value="monthly">
+                <button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-md hover:bg-primary-700 transition">
+                    {{ plan.price_monthly|floatformat:"0" }} ₽ / месяц
+                </button>
+            </form>
+            {# Форма для годовой оплаты #}
+            <form method="post" action="{% url 'qr_app:subscription_activate' company_slug=company.slug %}" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                <input type="hidden" name="period" value="annually">
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">
+                    {{ plan.price_annually|floatformat:"0" }} ₽ / год
+                </button>
+            </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Управление командой{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Управление командой</h1>
+
+{% with total_users=current_user_count|add:pending_invites_count %}
+<!-- Адаптивный информационный блок о лимитах -->
+<div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div>
+            <h3 class="font-bold text-blue-900">Тариф "{{ company.subscription_plan.name }}"</h3>
+            <p>Использовано <strong>{{ total_users }}</strong> из <strong>{{ user_limit }}</strong> доступных мест.</p>
+        </div>
+        {% if user.is_admin %}
+        <a href="{% url 'qr_app:subscription_select' company_slug=company.slug %}" class="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm text-center transition-colors">Сменить тариф</a>
+        {% endif %}
+    </div>
+    <!-- Полоса прогресса -->
+    <div class="w-full bg-blue-200 rounded-full h-2.5 mt-3">
+        <div class="bg-blue-600 h-2.5 rounded-full" style="width: {% widthratio total_users user_limit 100 %}%"></div>
+    </div>
+</div>
+
+<!-- Адаптивная форма приглашения -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold mb-4">Пригласить нового сотрудника</h2>
+
+    {% if total_users >= user_limit %}
+        <div class="bg-yellow-100 border-l-4 border-yellow-400 p-4 text-yellow-800">
+            <p><strong>Внимание!</strong> Вы достигли лимита по количеству сотрудников. Чтобы пригласить нового, удалите существующего участника, отмените приглашение или смените тарифный план.</p>
+        </div>
+    {% else %}
+        <form method="post" class="flex flex-col sm:flex-row sm:items-end gap-3">
+            {% csrf_token %}
+            <div class="flex-grow w-full">
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.email.label }}</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.email.errors.as_text }}</p>
+                {% endif %}
+            </div>
+            <button type="submit" class="w-full sm:w-auto bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition-colors flex-shrink-0">Пригласить</button>
+        </form>
+    {% endif %}
+</div>
+{% endwith %}
+
+<!-- Адаптивная сетка для списков сотрудников и приглашений -->
+<div class="grid md:grid-cols-2 gap-8">
+    <!-- Карточка: Текущие сотрудники -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Активные сотрудники ({{ current_user_count }})</h2>
+        <div class="space-y-4">
+            {% for member in members %}
+            <div class="flex justify-between items-center py-2">
+                <div>
+                    <p class="font-medium text-gray-800">{{ member.email }}</p>
+                    <p class="text-sm text-gray-500 capitalize">{{ member.get_role_display }}</p>
+                </div>
+                {% if member.role != 'admin' and member.id != user.id %}
+                    <a href="{% url 'qr_app:member_delete' company_slug=company.slug pk=member.pk %}" class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">Удалить</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Карточка: Ожидающие приглашения -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Ожидающие приглашения ({{ pending_invites_count }})</h2>
+        {% if invitations %}
+            <div class="space-y-3">
+                {% for invitation in invitations %}
+                <p class="py-2 text-gray-600 border-b border-gray-100">{{ invitation.email }}</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                 <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+                <p class="mt-2 text-gray-500">Нет активных приглашений.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Создание аккаунта</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors or form.error %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                {{ form.non_field_errors }}
+                {{ form.error }}
+            </div>
+        {% endif %}
+        
+        <div class="mb-4">
+            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email</label>
+            {{ form.email }}
+        </div>
+         <div class="mb-4">
+            <label for="{{ form.company_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Название компании</label>
+            {{ form.company_name }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">Пароль</label>
+            {{ form.password }}
+        </div>
+        <div class="mb-6">
+            <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700">Подтвердите пароль</label>
+            {{ form.password2 }}
+        </div>
+        
+        {% for field in form %}
+            {% if field.errors %}
+                <div class="text-red-500 text-sm mb-2">{{ field.errors }}</div>
+            {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            Зарегистрироваться
+        </button>
+    </form>
+</div>
+<style>
+    input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}

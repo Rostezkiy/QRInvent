@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}QR Service Platform | Порядок в обслуживании оборудования{% endblock %}
+
+{% block main_content %}
+    <main>
+        <!-- Секция "Hero" -->
+        <section class="bg-white text-center py-16 sm:py-20">
+            <div class="container mx-auto px-4 sm:px-6">
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900">Порядок в оборудовании по QR-коду</h1>
+                <p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">Мгновенный доступ к истории
+                    обслуживания, чек-листам и документации. Вся информация о вашей технике — в смартфоне
+                    сотрудника.</p>
+                <a href="{% url 'register' %}"
+                   class="mt-8 inline-block bg-primary-600 text-white text-lg px-8 py-3 rounded-full font-semibold hover:bg-primary-700 transition duration-300">Начать
+                    бесплатно</a>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- БЛОК "КАК ЭТО РАБОТАЕТ"                  -->
+        <!-- =============================================================== -->
+        <section id="how-it-works" class="py-16 sm:py-20 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6">
+                <h2 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-12">От сканирования до отчета за
+                    30 секунд</h2>
+                <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+
+                    <!-- Сценарий 1: Для сотрудника "в поле" -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold mb-4 text-center">✅ Для сотрудника на месте</h3>
+                        <div class="mb-4">
+                            <img src="/static/img/equipcheck.png"
+                                 alt="Экран телефона с открытым чек-листом"
+                                 class="w-auto max-w-xs h-auto mx-auto rounded-lg shadow-md">
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><b>Наводит камеру</b> на QR-код оборудования.</li>
+                            <li><b>Видит свой чек-лист:</b> отмечает выполненные пункты.</li>
+                            <li><b>Делает фото,</b> если нашел неисправность.</li>
+                            <li><b>Нажимает "Готово".</b> Его работа сделана.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Сценарий 2: Для руководителя в офисе -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold mb-4 text-center">📊 Для руководителя в офисе</h3>
+                        <div class="mb-4">
+                            <img src="/static/img/admindash.png"
+                                 alt="Экран телефона с панелью администратора"
+                                 class="w-auto max-w-xs h-auto mx-auto rounded-lg shadow-md">
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><b>В ту же секунду видит</b> новую запись в журнале.</li>
+                            <li><b>Знает, кто и когда</b> выполнил работу.</li>
+                            <li><b>Смотрит прикрепленное фото</b> и оценивает проблему.</li>
+                            <li><b>Принимает решение,</b> основываясь на фактах, а не словах.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- ВЫГОДЫ ДЛЯ БИЗНЕСА                             -->
+        <!-- =============================================================== -->
+        <section id="benefits" class="py-16 sm:py-20 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6">
+                <h2 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-12">Что вы получаете в
+                    итоге?</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Выгода 1 -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <h3 class="text-xl font-semibold mb-2">Экономия времени на каждом выезде</h3>
+                        <p class="text-gray-600">Сотрудникам больше не нужно звонить в офис, искать бумажные журналы или
+                            инструкции. Вся информация доступна мгновенно, что сокращает простои и ускоряет выполнение
+                            работ.</p>
+                    </div>
+                    <!-- Выгода 2 -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <h3 class="text-xl font-semibold mb-2">Снижение человеческого фактора</h3>
+                        <p class="text-gray-600">Стандартизированные чек-листы гарантируют, что ни один важный шаг не
+                            будет пропущен. Это повышает качество обслуживания и снижает вероятность дорогостоящих
+                            ошибок.</p>
+                    </div>
+                    <!-- Выгода 3 -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <h3 class="text-xl font-semibold mb-2">Полная прозрачность для руководителя</h3>
+                        <p class="text-gray-600">Вы всегда знаете, кто, когда и какие работы проводил. Все данные
+                            синхронизируются в реальном времени, позволяя принимать взвешенные управленческие
+                            решения.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- НАДЕЖНОСТЬ И ГИБКОСТЬ                           -->
+        <!-- =============================================================== -->
+        <section id="trust" class="py-16 sm:py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6">
+                <h2 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-12">Надежность и гибкость для
+                    вашего бизнеса</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Блок 1: Безопасность -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-2">Безопасность данных</h3>
+                        <p class="text-gray-600">Мы серьезно относимся к безопасности. Данные каждой компании полностью
+                            изолированы и хранятся на защищенных серверах с регулярным резервным копированием. Доступ к
+                            вашим файлам есть только у ваших сотрудников.</p>
+                    </div>
+                    <!-- Блок 2: Ролевая система -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-2">Ролевая система</h3>
+                        <p class="text-gray-600">Управляйте доступами внутри команды. **Администраторы** могут
+                            настраивать шаблоны, оборудование и приглашать пользователей. **Техники** получают доступ к
+                            сканированию и ведению журнала, без возможности что-либо удалить.</p>
+                    </div>
+                    <!-- Блок 3: Индивидуальные условия -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-2">Индивидуальные условия</h3>
+                        <p class="text-gray-600">Ваш бизнес выходит за рамки стандартных тарифов? Свяжитесь с нами для
+                            обсуждения персональных лимитов по оборудованию и пользователям, а также возможностей
+                            доработки платформы под ваши уникальные задачи.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Секция "Тарифы" -->
+<section id="pricing" class="py-16 sm:py-20 bg-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <h2 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-12">Наши тарифы</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for plan in plans %}
+                <div class="bg-gray-50 rounded-lg shadow-lg p-8 border-t-4 border-primary-500 flex flex-col">
+                    <div class="flex-grow">
+                        <h3 class="text-2xl font-bold text-center text-gray-800">{{ plan.name }}</h3>
+                        <p class="text-center text-gray-500 mt-2 min-h-[3rem]">{{ plan.description }}</p>
+                        <div class="text-center my-6">
+                            <span class="text-4xl sm:text-5xl font-extrabold text-gray-900">{{ plan.price_monthly|floatformat:0 }} ₽</span>
+                            <span class="text-gray-500">/ месяц</span>
+                        </div>
+                        <ul class="text-gray-600 space-y-3">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none"
+                                     stroke="currentColor" viewBox="0 0 24 24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>До <strong>{{ plan.max_equipment }}</strong> ед. оборудования</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none"
+                                     stroke="currentColor" viewBox="0 0 24 24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>До <strong>{{ plan.max_users }}</strong> сотрудников</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'register' %}"
+                       class="mt-8 block w-full bg-primary-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-primary-700 transition duration-300">Выбрать
+                        тариф</a>
+                </div>
+            {% empty %}
+                <p class="text-gray-600">На данный момент нет доступных тарифных планов.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <br>
+    <div style="padding: 24px; text-align: center; margin-top: 30px;">
+        <h3 style="font-size: 24px; font-weight: bold;">Нужны особые условия?</h3>
+        <p style="font-size: 18px; margin-top: 8px;">Если ваш бизнес выходит за рамки стандартных планов, мы
+            предложим индивидуальное решение. Персональные лимиты и доработки под ваши задачи.</p>
+        <a href="mailto:help@EMAIL?subject=Запрос%20Enterprise-плана&body=Здравствуйте,%20хотим%20обсудить%20условия."
+           class="mt-8 w-auto bg-primary-600 text-white text-center px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition duration-300 inline-block">
+            Обсудить Enterprise-план
+        </a>
+    </div>
+    <br>
+</section>
+
+        <!-- НОВАЯ СЕКЦИЯ: "Финальный призыв к действию" -->
+        <section class="bg-primary-700 text-white text-center py-16 sm:py-20">
+            <div class="container mx-auto px-4 sm:px-6">
+                <h2 class="text-3xl sm:text-4xl font-bold">Готовы навести порядок в обслуживании?</h2>
+                <p class="mt-4 text-lg sm:text-xl max-w-2xl mx-auto">Зарегистрируйтесь сейчас и получите бесплатный
+                    доступ ко всем возможностям на 14 дней. Карту привязывать не нужно.</p>
+                <a href="{% url 'register' %}"
+                   class="mt-8 inline-block bg-white text-primary-700 text-lg px-8 py-3 rounded-full font-semibold hover:bg-gray-200 transition duration-300">Попробовать
+                    бесплатно</a>
+            </div>
+        </section>
+    </main>
+{% endblock main_content %}

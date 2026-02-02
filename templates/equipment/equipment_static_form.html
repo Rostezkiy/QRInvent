@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Добавление оборудования{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 mb-2">{{ page_title|default:"Добавление нового оборудования" }}</h1>
+{% if template %}
+<p class="text-gray-600 mb-6">По шаблону: "{{ template.name }}"</p>
+{% endif %}
+<div class="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto">
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ field.errors.as_text }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div class="mt-6">
+            <button type="submit" class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700">Сохранить оборудование</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

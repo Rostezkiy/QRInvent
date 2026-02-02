@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}История активности{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold text-gray-800">История активности</h1>
+        <p class="text-gray-600">Полный журнал всех событий в компании "{{ company.name }}"</p>
+
+        <div class="mt-6 flow-root">
+            {% if activity_page.object_list %}
+                <ul role="list" class="-mb-8">
+                    {% for item in activity_page %}
+                        <li>
+                            <div class="relative pb-8">
+                                {% if not forloop.last %}
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+                                          aria-hidden="true"></span>{% endif %}
+                                <div class="relative flex items-start space-x-3">
+                                    <div class="relative">
+                        <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white {% if item.type == 'equipment' %} bg-green-500 {% else %} bg-blue-500 {% endif %}">
+
+                            <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                {% if item.type == 'equipment' %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                                {% else %}
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                {% endif %}
+                            </svg>
+
+                        </span>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div>
+                                            <p class="text-sm text-gray-500">
+                                                {% if item.type == 'equipment' %} Добавлено оборудование
+                                                {% elif item.type == 'record' %} Создана запись обслуживания
+                                                {% endif %}
+                                            </p>
+                                            <p class="font-medium text-gray-900">
+                                                <a href="
+                                                        {% if item.type == 'equipment' %}{% url 'qr_app:equipment_detail' company_slug=company.slug pk=item.pk %}{% else %}{% url 'qr_app:equipment_detail' company_slug=company.slug pk=item.equipment.pk %}{% endif %}"
+                                                   class="hover:underline">
+                                                    {% if item.type == 'equipment' %}{{ item.name }}{% else %}
+                                                        {{ item.equipment.name }}{% endif %}
+                                                </a>
+                                            </p>
+                                        </div>
+                                        <div class="mt-1 text-sm text-gray-500">
+                                            <span>{{ item.created_at|date:"d.m.Y H:i" }}</span>
+                                            {% if item.type == 'record' and item.author %} •
+                                                <span class="italic">{{ item.author.email }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="text-center py-10 text-gray-500 border-2 border-dashed rounded-lg">
+                    <p>Пока нет никакой активности.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Навигация по страницам (Пагинация) -->
+        {% if activity_page.has_other_pages %}
+            <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if activity_page.has_previous %}<a href="?page={{ activity_page.previous_page_number }}"
+                                                          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Назад</a>{% endif %}
+                    {% if activity_page.has_next %}<a href="?page={{ activity_page.next_page_number }}"
+                                                      class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Вперед</a>{% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Показаны с <span class="font-medium">{{ activity_page.start_index }}</span> по <span
+                                class="font-medium">{{ activity_page.end_index }}</span> из <span
+                                class="font-medium">{{ activity_page.paginator.count }}</span> записей
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            {% if activity_page.has_previous %}
+                                <a href="?page={{ activity_page.previous_page_number }}"
+                                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">&larr;</a>
+                            {% endif %}
+
+                            {% for i in activity_page.paginator.page_range %}
+                                {% if activity_page.number == i %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">{{ i }}</span>
+                                {% elif i > activity_page.number|add:'-3' and i < activity_page.number|add:'3' %}
+                                    <a href="?page={{ i }}"
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i }}</a>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if activity_page.has_next %}
+                                <a href="?page={{ activity_page.next_page_number }}"
+                                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">&rarr;</a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+{% block title %}Настройка шаблона: {{ template.name }}{% endblock %}
+
+{% block content %}
+    <!-- Адаптивный заголовок страницы -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Настройка шаблона</h1>
+            <!-- Контейнер для интерактивного названия -->
+            <div id="template-name-container" class="flex items-center gap-3 mt-1">
+                <!-- Блок для отображения названия -->
+                <div id="template-name-display" class="flex items-center gap-3">
+                    <p class="text-xl text-gray-700 font-semibold">"{{ template.name }}"</p>
+                    <button id="edit-template-name-btn" class="text-gray-500 hover:text-primary-600">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+                <!-- Форма для редактирования (скрыта по умолчанию) -->
+                <form id="template-name-form" class="hidden flex items-center gap-2" method="post">
+                    <input type="text" name="new_template_name"
+                           class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                           value="{{ template.name }}" required>
+                    <button type="submit"
+                            class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm font-medium">
+                        Сохранить
+                    </button>
+                    <button type="button" id="cancel-edit-template-name-btn"
+                            class="text-sm text-gray-600 hover:text-gray-900">Отмена
+                    </button>
+                </form>
+            </div>
+        </div>
+        <a href="{% url 'qr_app:equipment_create_from_template' company_slug=company.slug template_pk=template.pk %}"
+           class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-center transition-colors">
+            Добавить оборудование по шаблону
+        </a>
+    </div>
+
+    <!-- Адаптивная сетка, двухколоночная только на больших экранах -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+        <!-- Левая колонка: Форма добавления поля -->
+        <div class="lg:col-span-2">
+            <div class="bg-white p-6 rounded-lg shadow-md h-fit sticky top-24">
+                <h2 class="text-xl font-semibold mb-4">Добавить новое поле</h2>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_field">
+                    <div>
+                        <label for="field_name" class="block text-sm font-medium text-gray-700">Название поля</label>
+                        <input type="text" name="field_name" id="field_name" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="field_type" class="block text-sm font-medium text-gray-700">Тип поля</label>
+                        <select name="field_type" id="field_type" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                            <option value="short_text">Короткий текст</option>
+                            <option value="long_text">Длинный текст</option>
+                            <option value="number">Число</option>
+                            <option value="date">Дата</option>
+                            <option value="checkbox">Чекбокс (Да/Нет)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="field_purpose" class="block text-sm font-medium text-gray-700">Назначение
+                            поля</label>
+                        <select name="field_purpose" id="field_purpose" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                            <option value="static">Параметр оборудования (заполняется 1 раз)</option>
+                            <option value="checklist">Поле в чек-листе (при каждом обслуживании)</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 !mt-6 font-semibold transition-colors">
+                        Добавить поле
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Правая колонка: Список существующих полей -->
+        <div class="lg:col-span-3">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-1">Структура шаблона</h2>
+                <p class="text-sm text-gray-500 mb-6">Перетащите поля, чтобы изменить их порядок.</p>
+
+                <!-- Секция статических полей -->
+                <h3 class="text-lg font-semibold text-gray-800">Параметры оборудования</h3>
+                <p class="text-sm text-gray-500 mb-3">Информация, которая редко меняется (серийный номер, модель и
+                    т.д.)</p>
+                <ul id="static-fields-list" class="mb-6 border rounded-md bg-gray-50/50" data-purpose="static"
+                    data-reorder-url="{% url 'qr_app:template_reorder_fields' company_slug=company.slug pk=template.pk %}">
+                    <li class="flex justify-between items-center py-2 px-4 border-b bg-gray-100 text-gray-500">
+                        <span class="flex items-center"><i class="fas fa-lock mr-2 text-gray-400"></i>Название оборудования</span>
+                        <span class="text-sm italic">Обязательное</span>
+                    </li>
+                    {% for field in template.fields_schema %}{% if field.purpose == 'static' or not field.purpose %}
+                        <li class="field-item flex justify-between items-center py-3 px-4 border-b border-gray-200 cursor-grab group bg-white"
+                            data-field-id="{{ field.id }}">
+                            <span class="field-name-display font-medium text-gray-700">{{ field.name }}</span>
+                            <div class="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="rename-btn text-sm font-medium text-blue-600 hover:text-blue-800"
+                                        data-field-id="{{ field.id }}" data-current-name="{{ field.name }}">
+                                    Переименовать
+                                </button>
+                                <form method="post" class="delete-form"
+                                      action="{% url 'qr_app:template_detail' company_slug=company.slug pk=template.pk %}">{% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_field"><input type="hidden"
+                                                                                                   name="field_id"
+                                                                                                   value="{{ field.id }}">
+                                    <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800">
+                                        Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endif %}{% endfor %}
+                </ul>
+
+                <!-- Секция полей чек-листа -->
+                <h3 class="text-lg font-semibold text-gray-800 mt-8">Поля в чек-листе</h3>
+                <p class="text-sm text-gray-500 mb-3">Пункты, которые техник проверяет при каждом обслуживании.</p>
+                <ul id="checklist-fields-list" class="border rounded-md bg-gray-50/50" data-purpose="checklist"
+                    data-reorder-url="{% url 'qr_app:template_reorder_fields' company_slug=company.slug pk=template.pk %}">
+                    <li class="flex justify-between items-center py-2 px-4 border-b bg-gray-100 text-gray-500">
+                        <span class="flex items-center"><i
+                                class="fas fa-lock mr-2 text-gray-400"></i>Фотографии</span><span
+                            class="text-sm italic">Системное</span>
+                    </li>
+                    {% for field in template.fields_schema %}
+                        {% if field.purpose == 'checklist' and field.name != 'Фотографии' %}
+                            <li class="field-item flex justify-between items-center py-3 px-4 border-b border-gray-200 cursor-grab group bg-white"
+                                data-field-id="{{ field.id }}">
+                                <span class="field-name-display font-medium text-gray-700">{{ field.name }}</span>
+                                <div class="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button class="rename-btn text-sm font-medium text-blue-600 hover:text-blue-800"
+                                            data-field-id="{{ field.id }}" data-current-name="{{ field.name }}">
+                                        Переименовать
+                                    </button>
+                                    <form method="post" class="delete-form"
+                                          action="{% url 'qr_app:template_detail' company_slug=company.slug pk=template.pk %}">{% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_field"><input type="hidden"
+                                                                                                       name="field_id"
+                                                                                                       value="{{ field.id }}">
+                                        <button type="submit"
+                                                class="text-sm font-medium text-red-600 hover:text-red-800">
+                                            Удалить
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% endif %}{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для переименования -->
+    <div id="rename-modal"
+         class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50 transition-opacity">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center mb-4">Переименовать поле</h3>
+            <div>
+                <input type="text" id="new-field-name-input"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                       placeholder="Новое название">
+                <input type="hidden" id="field-id-to-rename">
+            </div>
+            <div class="flex justify-end items-center mt-4 space-x-3">
+                <button id="cancel-rename-btn"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-300 transition-colors">
+                    Отмена
+                </button>
+                <button id="save-rename-btn"
+                        class="px-4 py-2 bg-green-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-700 transition-colors">
+                    Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключения и скрипты -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const csrftoken = getCookie('csrftoken');
+
+            // --- Логика модального окна для переименования ---
+            const modal = document.getElementById('rename-modal');
+            const newNameInput = document.getElementById('new-field-name-input');
+            const fieldIdInput = document.getElementById('field-id-to-rename');
+            const openModalButtons = document.querySelectorAll('.rename-btn');
+            const closeModalButton = document.getElementById('cancel-rename-btn');
+            const saveButton = document.getElementById('save-rename-btn');
+
+            openModalButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    fieldIdInput.value = this.dataset.fieldId;
+                    newNameInput.value = this.dataset.currentName;
+                    modal.classList.remove('hidden');
+                    newNameInput.focus();
+                });
+            });
+
+            closeModalButton.addEventListener('click', () => modal.classList.add('hidden'));
+
+            saveButton.addEventListener('click', function () {
+                const fieldId = fieldIdInput.value;
+                const newName = newNameInput.value.trim();
+                if (!newName) {
+                    alert('Название не может быть пустым.');
+                    return;
+                }
+
+                const renameUrl = "{% url 'qr_app:template_rename_field' company_slug=company.slug pk=template.pk %}";
+                fetch(renameUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+                    body: JSON.stringify({field_id: fieldId, new_name: newName})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'ok') {
+                            const fieldElement = document.querySelector(`.field-item[data-field-id="${fieldId}"] .field-name-display`);
+                            if (fieldElement) fieldElement.textContent = newName;
+
+                            const buttonElement = document.querySelector(`.rename-btn[data-field-id="${fieldId}"]`);
+                            if (buttonElement) buttonElement.dataset.currentName = newName;
+
+                            modal.classList.add('hidden');
+                        } else {
+                            alert('Ошибка: ' + data.message);
+                        }
+                    });
+            });
+
+            // --- УЛУЧШЕННАЯ Логика удаления через AJAX ---
+            document.querySelectorAll('.delete-form').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (!confirm('Вы уверены, что хотите удалить это поле? Это действие необратимо.')) return;
+
+                    const formData = new FormData(this);
+                    const fieldItemElement = this.closest('.field-item');
+
+                    fetch(this.getAttribute('action'), {
+                        method: 'POST',
+                        headers: {'X-CSRFToken': csrftoken},
+                        body: formData
+                    })
+                        .then(response => response.ok ? response.json() : Promise.reject('Network response was not ok.'))
+                        .then(data => {
+                            // Плавное удаление элемента со страницы без перезагрузки
+                            fieldItemElement.style.transition = 'opacity 0.3s ease-out';
+                            fieldItemElement.style.opacity = '0';
+                            setTimeout(() => {
+                                fieldItemElement.remove();
+                            }, 300);
+                        })
+                        .catch(error => {
+                            console.error('Delete error:', error);
+                            alert('Произошла ошибка при удалении поля.');
+                        });
+                });
+            });
+
+            // --- Логика Drag-and-Drop ---
+            function initializeSortable(listId) {
+                const listElement = document.getElementById(listId);
+                if (!listElement) return;
+
+                new Sortable(listElement, {
+                    animation: 150,
+                    handle: '.field-item', // Указываем, что перетаскивать можно только кастомные поля
+                    filter: '.bg-gray-100', // Системные поля нельзя перетаскивать
+                    preventOnFilter: false,
+                    onEnd: function (evt) {
+                        const reorderUrl = listElement.dataset.reorderUrl;
+                        const purpose = listElement.dataset.purpose;
+                        const orderedFieldIds = Array.from(listElement.querySelectorAll('.field-item')).map(item => item.dataset.fieldId);
+
+                        fetch(reorderUrl, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+                            body: JSON.stringify({ordered_ids: orderedFieldIds, purpose: purpose})
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status !== 'ok') alert('Ошибка при сохранении порядка: ' + data.message);
+                            });
+                    }
+                });
+            }
+
+            initializeSortable('static-fields-list');
+            initializeSortable('checklist-fields-list');
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const displayBlock = document.getElementById('template-name-display');
+            const formBlock = document.getElementById('template-name-form');
+            const editBtn = document.getElementById('edit-template-name-btn');
+            const cancelBtn = document.getElementById('cancel-edit-template-name-btn');
+
+            if (displayBlock && formBlock) {
+                editBtn.addEventListener('click', () => {
+                    displayBlock.classList.add('hidden');
+                    formBlock.classList.remove('hidden');
+                    formBlock.querySelector('input[name="new_template_name"]').focus();
+                });
+
+                cancelBtn.addEventListener('click', () => {
+                    displayBlock.classList.remove('hidden');
+                    formBlock.classList.add('hidden');
+                });
+
+                formBlock.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const newName = this.querySelector('input[name="new_template_name"]').value.trim();
+                    if (!newName) return;
+
+                    // Отправляем запрос на тот же URL, на котором находимся
+                    const renameUrl = "{% url 'qr_app:template_detail' company_slug=company.slug pk=template.pk %}";
+
+                    fetch(renameUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            action: 'rename_template', // Наше новое действие
+                            new_name: newName
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'ok') {
+                                displayBlock.querySelector('p').textContent = `"${data.new_name}"`;
+                                document.title = `Настройка шаблона: ${data.new_name}`;
+                                cancelBtn.click(); // Скрываем форму
+                            } else {
+                                alert('Ошибка: ' + (data.message || 'Не удалось переименовать шаблон.'));
+                            }
+                        })
+                        .catch(error => console.error('Rename template error:', error));
+                });
+            }
+        });
+
+    </script>
+{% endblock %}

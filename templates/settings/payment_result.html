@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Результат оплаты{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto text-center">
+    <div class="bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-gray-800">Обработка платежа</h1>
+        <p class="mt-4 text-lg text-gray-600">
+            Спасибо! Ваш платеж находится в обработке.
+        </p>
+        <p class="mt-2 text-gray-500">
+            Обычно это занимает не больше минуты. Статус вашей подписки будет обновлен автоматически.
+        </p>
+        <div class="mt-8">
+            <a href="{% url 'qr_app:subscription_manage' company_slug=company.slug %}" class="inline-block w-full sm:w-auto text-center bg-primary-600 text-white px-6 py-3 rounded-md font-bold hover:bg-primary-700 transition-colors">
+                Вернуться к управлению подпиской
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

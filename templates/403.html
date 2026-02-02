@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Доступ запрещен (403){% endblock %}
+
+{% block content %}
+<div class="min-h-[60vh] flex items-center justify-center">
+    <div class="text-center">
+        <h1 class="text-6xl font-bold text-primary-600">403</h1>
+        <p class="text-2xl font-semibold text-gray-800 mt-4">Доступ запрещен</p>
+        <p class="text-gray-600 mt-2">
+            У вас нет необходимых прав для просмотра этой страницы.
+        </p>
+        <div class="mt-6">
+            <a href="{% url 'select_company' %}"
+               class="px-6 py-3 bg-primary-600 text-white font-semibold rounded-md hover:bg-primary-700">
+                Вернуться на главную
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

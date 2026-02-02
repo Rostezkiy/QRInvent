@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Присоединиться к компании{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
+    <h2 class="text-2xl font-bold mb-2 text-center text-gray-800">Присоединение к "{{ company.name }}"</h2>
+    <p class="text-center text-gray-600 mb-6">Завершите регистрацию для email: <strong>{{ email }}</strong></p>
+    
+    <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        
+        <div class="mb-4">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {% if form.password.errors %}<p class="text-red-500 text-xs mt-1">{{ form.password.errors.as_text }}</p>{% endif %}
+        </div>
+        <div class="mb-6">
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            {% if form.password2.errors %}<p class="text-red-500 text-xs mt-1">{{ form.password2.errors.as_text }}</p>{% endif %}
+        </div>
+
+        <button type="submit" class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700">
+            Создать аккаунт и присоединиться
+        </button>
+    </form>
+</div>
+{% endblock %}

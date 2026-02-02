@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Управление подпиской{% endblock %}
+
+{% block content %}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <!-- Левая колонка - Навигация -->
+        <div class="md:col-span-1">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="font-semibold text-lg mb-4">Настройки</h3>
+                <ul>
+{#                    <li><a href="{% url 'qr_app:company_settings' company_slug=company.slug %}"#}
+{#                           class="block py-2 px-3 hover:bg-gray-100 rounded-md">Настройки компании</a></li>#}
+                    <li><a href="{% url 'qr_app:subscription_manage' company_slug=company.slug %}"
+                           class="block py-2 px-3 bg-primary-100 text-primary-700 rounded-md font-bold">Управление
+                        подпиской</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Контент -->
+        <div class="md:col-span-3">
+            <div class="bg-white p-4 sm:p-8 rounded-lg shadow-md">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6">Управление подпиской</h1>
+
+                {% if company.has_active_subscription %}
+                    <!-- === ИНФОРМАЦИЯ О ТЕКУЩЕЙ ПОДПИСКЕ === -->
+                    <div class="space-y-4 border-b pb-6 mb-6">
+                        <div>
+                            <p class="text-sm text-gray-500">Текущий тариф</p>
+                            <p class="text-xl font-bold text-primary-600">{{ company.subscription_plan.name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Статус</p>
+                            <p class="text-xl font-semibold text-green-600">Активна
+                                до {{ company.subscription_expires_on|date:"d.m.Y" }}</p>
+                        </div>
+                    </div>
+
+                    <!-- === ИСПОЛЬЗОВАНИЕ РЕСУРСОВ === -->
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <div class="flex justify-between items-baseline gap-4 mb-1">
+                                <span class="font-medium">Оборудование</span>
+                                <span>{{ equipment_usage }} / {{ company.subscription_plan.max_equipment }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full"
+                                     style="width: {% widthratio equipment_usage company.subscription_plan.max_equipment 100 %}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-baseline gap-4 mb-1">
+                                <span class="font-medium">Сотрудники</span>
+                                <span>{{ user_usage }} / {{ company.subscription_plan.max_users }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-cyan-600 h-2.5 rounded-full"
+                                     style="width: {% widthratio user_usage company.subscription_plan.max_users 100 %}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- === ДЕЙСТВИЯ === -->
+                    <div class="pt-6 border-t">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Действия</h3>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+                            <a href="{% url 'qr_app:subscription_select' company_slug=company.slug %}"
+                               class="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700">
+                                Сменить тариф
+                            </a>
+
+                            {% if company.auto_renew %}
+                                <form method="post"
+                                      action="{% url 'qr_app:subscription_cancel' company_slug=company.slug %}"
+                                      onsubmit="return confirm('Вы уверены, что хотите отменить автопродление? Доступ к функциям сохранится до конца оплаченного периода.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-500 hover:text-red-700 hover:underline">
+                                        Отменить подписку
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form method="post"
+                                      action="{% url 'qr_app:subscription_toggle_renew' company_slug=company.slug %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-green-600 hover:text-green-800 hover:underline">
+                                        Возобновить подписку
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        {% if not company.auto_renew %}
+                            <p class="mt-4 text-sm text-yellow-800 bg-yellow-100 p-3 rounded-md">
+                                Автопродление отключено. Ваша подписка
+                                завершится {{ company.subscription_expires_on|date:"d.m.Y" }}.
+                            </p>
+                        {% endif %}
+                    </div>
+
+                {% else %}
+                    <!-- === ЕСЛИ ПОДПИСКИ НЕТ === -->
+                    <div class="text-center">
+                        <p class="text-lg text-gray-700">У вас нет активной подписки.</p>
+                        <p class="text-gray-500 mt-1">Для доступа ко всем функциям системы выберите подходящий
+                            тариф.</p>
+                        <a href="{% url 'qr_app:subscription_select' company_slug=company.slug %}"
+                           class="mt-4 inline-block bg-primary-600 text-white px-8 py-3 rounded-md font-bold hover:bg-primary-700">Выбрать
+                            тариф</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

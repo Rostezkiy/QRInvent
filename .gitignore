@@ -1,0 +1,8 @@
+/.venv/
+.idea
+db.sqlite3
+/media/
+.env
+__pycache__
+migrations
+tests

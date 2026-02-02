@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Выбор компании{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <h1 class="text-2xl font-bold text-center mb-6">Выберите компанию для входа</h1>
+    <div class="bg-white p-8 rounded-lg shadow-md space-y-4">
+        {% for membership in memberships %}
+            <a href="{% url 'qr_app:dashboard' company_slug=membership.company.slug %}" 
+               class="block w-full text-center bg-primary-600 text-white py-3 px-4 rounded-md hover:bg-primary-700">
+                {{ membership.company.name }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

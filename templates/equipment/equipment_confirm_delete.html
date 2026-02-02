@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Удаление оборудования{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Удаление оборудования</h1>
+
+<div class="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto">
+    <p class="text-lg">Вы уверены, что хотите удалить оборудование "<strong>{{ object.name }}</strong>"?</p>
+
+    {# --- ОБНОВЛЕНИЕ: Более заметный блок с предупреждением --- #}
+    <div class="mt-4 p-4 bg-red-50 border-l-4 border-red-400 text-red-800">
+        <p class="font-bold">Внимание!</p>
+        <p>Это действие <strong>безвозвратно удалит всю историю обслуживания</strong>, связанную с этим оборудованием, включая все записи и фотографии.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mt-6 flex justify-end items-center gap-4">
+            <a href="{% url 'qr_app:equipment_detail' company_slug=company.slug pk=object.pk %}" class="bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300">Отмена</a>
+            
+            {# --- ИЗМЕНЕНИЕ: Кнопка удаления с ID, таймером и отключенная по умолчанию --- #}
+            <button 
+                id="delete-button" 
+                type="submit" 
+                class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed flex items-center" 
+                disabled
+            >
+                Удалить
+                <span id="countdown-timer" class="ml-2 font-mono text-sm">(5)</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+{# --- НОВОЕ: JavaScript для управления таймером и кнопкой --- #}
+<script>
+    // Находим кнопку и элемент таймера в документе
+    const deleteButton = document.getElementById('delete-button');
+    const countdownTimer = document.getElementById('countdown-timer');
+
+    // Устанавливаем начальное время отсчета
+    let countdown = 5;
+
+    // Запускаем интервал, который будет выполняться каждую секунду (1000 мс)
+    const intervalId = setInterval(() => {
+        // Уменьшаем счетчик на 1
+        countdown--;
+
+        // Обновляем текст таймера
+        countdownTimer.textContent = `(${countdown})`;
+
+        // Проверяем, если отсчет дошел до нуля
+        if (countdown <= 0) {
+            // Останавливаем таймер, чтобы он не ушел в минус
+            clearInterval(intervalId);
+
+            // Включаем кнопку
+            deleteButton.disabled = false;
+            
+            // Меняем текст на кнопке для ясности
+            deleteButton.textContent = 'Да, удалить';
+
+            // Элемент с таймером больше не нужен, можно его удалить или скрыть
+            // countdownTimer.remove(); // или
+            countdownTimer.style.display = 'none';
+        }
+    }, 1000);
+</script>
+
+{% endblock %}

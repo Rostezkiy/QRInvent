@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Панель техника{% endblock %}
+
+{% block content %}
+<!-- Шапка дашборда -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-800">Рабочая панель</h1>
+    <p class="text-gray-600">Привет, {{ user.email }}! Здесь ваш быстрый доступ к оборудованию.</p>
+</div>
+
+<!-- Адаптивная основная сетка -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Левая, основная колонка: Список оборудования с поиском -->
+    <div class="lg:col-span-2">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Оборудование компании</h2>
+
+            <div x-data="{ searchTerm: '' }" class="space-y-4">
+                <input type="text" x-model="searchTerm" placeholder="Найти оборудование..." class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+
+                <div class="space-y-2">
+                    {% for equipment in equipment_list %}
+                        <div x-show="searchTerm === '' || '{{ equipment.name|lower }}'.includes(searchTerm.toLowerCase())" x-transition>
+                            <a href="{% url 'qr_app:equipment_detail' company_slug=company.slug pk=equipment.pk %}" class="flex items-center p-3 rounded-md hover:bg-gray-100 transition-colors border">
+                                <div class="flex-shrink-0 mr-3">
+                                    <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="font-semibold text-gray-800">{{ equipment.name }}</p>
+                                    <p class="text-sm text-gray-500">{{ equipment.template.name }}</p>
+                                </div>
+                                <div class="flex-shrink-0 ml-3">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                                </div>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-10 text-gray-500 border-2 border-dashed rounded-lg">
+                            <p>В компании пока нет оборудования.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая, вспомогательная колонка: Последняя активность -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Ваша последняя активность</h2>
+            <div class="space-y-4">
+                {% for record in recent_records %}
+                    <a href="{% url 'qr_app:equipment_detail' company_slug=company.slug pk=record.equipment.pk %}" class="flex items-start p-3 rounded-md hover:bg-gray-50 transition-colors">
+                        <div class="flex-shrink-0 mr-3 mt-1">
+                            <svg class="h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800">{{ record.equipment.name }}</p>
+                            <p class="text-sm text-gray-600">Запись добавлена</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ record.created_at|timesince }} назад</p>
+                        </div>
+                    </a>
+                {% empty %}
+                     <div class="text-center py-10 text-gray-500">
+                        <p>У вас пока нет записей в журналах.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
